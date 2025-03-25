@@ -14,7 +14,7 @@ use std::iter;
 /// 
 pub trait BezierPath : Geo+Clone+Sized {
     /// Type of an iterator over the points in this curve. This tuple contains the points ordered as a hull: ie, two control points followed by a point on the curve
-    type PointIter: Iterator<Item=(Self::Point, Self::Point, Self::Point)>;
+    type PointIter<'a>: Iterator<Item=(Self::Point, Self::Point, Self::Point)> + 'a where Self: 'a;
 
     ///
     /// Retrieves the initial point of this path
@@ -24,7 +24,7 @@ pub trait BezierPath : Geo+Clone+Sized {
     ///
     /// Retrieves an iterator over the points in this path
     /// 
-    fn points(&self) -> Self::PointIter;
+    fn points(&self) -> Self::PointIter<'_>;
 
     ///
     /// Finds the bounds of this path
@@ -151,7 +151,7 @@ impl<Point: Clone+Coordinate> Geo for (Point, Vec<(Point, Point, Point)>) {
 /// The type (start_point, Vec<(Point, Point, Point)>) is the simplest bezier path type
 /// 
 impl<Point: Clone+Coordinate> BezierPath for (Point, Vec<(Point, Point, Point)>) {
-    type PointIter  = vec::IntoIter<(Point, Point, Point)>;
+    type PointIter<'a> = std::iter::Cloned<std::slice::Iter<'a, (Point, Point, Point)>> where Point: 'a;
 
     ///
     /// Retrieves the initial point of this path
@@ -163,8 +163,8 @@ impl<Point: Clone+Coordinate> BezierPath for (Point, Vec<(Point, Point, Point)>)
     ///
     /// Retrieves an iterator over the points in this path
     /// 
-    fn points(&self) -> Self::PointIter {
-        self.1.clone().into_iter()
+    fn points(&self) -> Self::PointIter<'_> {
+        self.1.iter().cloned()
     }
 }
 
