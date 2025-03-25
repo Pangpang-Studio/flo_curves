@@ -7,6 +7,7 @@ use smallvec::*;
 
 use std::iter;
 
+#[allow(clippy::eq_op)] // not my code
 ///
 /// Creates a 5th degree bezier curve that describes the dot product of the curve's tangent and the line connecting to 
 /// the point at every point on the curve. This is 0 when the point is perpendicular to the curve (ie, where the curve
